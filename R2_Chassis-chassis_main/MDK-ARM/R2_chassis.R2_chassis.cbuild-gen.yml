@@ -1,0 +1,10 @@
+build-gen:
+  board: ""
+  compiler: AC6
+  device: STM32H723ZETx
+  generated-by: uVision version 5.40.0.0
+  processor:
+    core: Cortex-M7
+    dsp: off
+    endian: little
+    fpu: dp

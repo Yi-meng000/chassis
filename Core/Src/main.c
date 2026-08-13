@@ -29,7 +29,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Sekiro.h"
-#include "EventRecorder.h"
+//#include "EventRecorder.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -81,8 +81,8 @@ int main(void)
 	memcpy(DestAddr, SourceAddr, 0x400);
 	SCB->VTOR = D1_DTCMRAM_BASE; //向量表重定向
 	
-	EventRecorderInitialize(EventRecordAll, 1U);
-	EventRecorderStart();
+//	EventRecorderInitialize(EventRecordAll, 1U);
+//	EventRecorderStart();
 	
   /* USER CODE END 1 */
 

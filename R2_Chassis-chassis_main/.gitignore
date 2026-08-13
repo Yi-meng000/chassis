@@ -1,0 +1,25 @@
+# Keil build files
+*.o
+*.crf
+*.d
+*.axf
+*.map
+*.hex
+*.htm
+*.lnp
+
+# Keil user config
+*.uvoptx
+*.uvguix.*
+
+# build folders
+MDK-ARM/R2_chassis/
+
+# vscode
+.vscode/
+
+# temporary
+*.log
+
+.vscode/
+MDK-ARM/RTE/

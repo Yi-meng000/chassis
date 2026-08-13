@@ -1,0 +1,13 @@
+build-gen-idx:
+  generated-by: uVision version 5.40.0.0
+  generators:
+    - board: ""
+      device: STM32H723ZETx
+      id: CubeMX
+      output: C:/Users/20673/Desktop/rc/27Robocon/R2_Master-master/R2_Chassis-chassis_main/MDK-ARM/STM32CubeMX/R2_chassis/
+      project-type: single-core
+      cbuild-gens:
+        - cbuild-gen: C:/Users/20673/Desktop/rc/27Robocon/R2_Master-master/R2_Chassis-chassis_main/MDK-ARM/R2_chassis.R2_chassis.cbuild-gen.yml
+          configuration: .R2_chassis
+          name: C:/Users/20673/Desktop/rc/27Robocon/R2_Master-master/R2_Chassis-chassis_main/MDK-ARM/STM32CubeMX/R2_chassis/R2_chassis.cgen.yml
+          project: R2_chassis
