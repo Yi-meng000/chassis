@@ -5,7 +5,8 @@ __RAM_D3_ ALIGN_32B uint8_t rx_temp2 = 0;
 __RAM_D1_ ALIGN_32B uint8_t rx_temp3 = 0;
 __RAM_D3_ ALIGN_32B uint8_t rx_temp6 = 0;
 __RAM_D2_ ALIGN_32B uint8_t rx_temp4 = 0;
-__RAM_D2_ ALIGN_32B uint8_t rx_temp9[QRCODE_RXLEN] = {0};
+__RAM_D2_ ALIGN_32B uint8_t rx_temp9[ROS_PACK_LEN] = {0};
+uint8_t rx_ros[16] = {0};
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART2)
@@ -13,7 +14,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         SCB_InvalidateDCache_by_Addr((uint32_t *)(&rx_temp2), 1);
         if (HAL_UART_Receive_DMA(huart, &rx_temp2, 1) != HAL_OK)
             Error_Handler();
-        Debug_Receive(&DebugMsg, rx_temp2);
+//        Debug_Receive(&DebugMsg, rx_temp2);
         // ✓ 使DCache失效,从RAM读取DMA写入的新数据
     }
     if (huart->Instance == USART1)
@@ -46,9 +47,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     }
     if (huart->Instance == UART9)
     {
-        if (HAL_UART_Receive_IT(huart, rx_temp9, QRCODE_RXLEN) != HAL_OK)
+        if (HAL_UART_Receive_IT(huart, rx_temp9, ROS_PACK_LEN) != HAL_OK)
             Error_Handler();
-        RobotCom_QrcodeScan(&RobotRxmsg, rx_temp9);
+//        RobotCom_QrcodeScan(&RobotRxmsg, rx_temp9);
+        ROS2STM_Comtest(&RosComPack, rx_temp9);        
+        
     }
 }
 
@@ -68,6 +71,8 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
         HAL_UART_Receive_DMA(huart, &rx_temp2, 1);
 		else if(huart->Instance == USART3)
 				HAL_UART_Receive_DMA(huart, &rx_temp3, 1);
+        else if(huart->Instance == UART9)
+                HAL_UART_Receive_IT(huart, rx_temp9, ROS_PACK_LEN);
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)

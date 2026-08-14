@@ -34,7 +34,7 @@ void Program_Init(void)
     HAL_UART_Receive_DMA(&huart3, &rx_temp3, 1);
     HAL_UART_Receive_IT(&huart4, &rx_temp4, 1);
     HAL_UART_Receive_DMA(&huart6, &rx_temp6, 1);
-    HAL_UART_Receive_IT(&huart9, rx_temp9, QRCODE_RXLEN);
+    HAL_UART_Receive_IT(&huart9, rx_temp9, ROS_PACK_LEN);
     Chassis_Init(&Chassis);
     Sekiro_Init(&Sekiro);
     chassisRunInit(&Chassis);

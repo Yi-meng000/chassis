@@ -43,8 +43,10 @@ int wheelTurnMin(WHEEL *wheel, float targetAngle)
 void Chassis_carvelSet(CHASSIS *chassis)
 {
     float AngleRealRad = DEG2RAD(chassis->ChassisPosReal.angle);
-    float carVxSet = chassis->ChassisPosSet.vx * cosf(AngleRealRad) + chassis->ChassisPosSet.vy * sinf(AngleRealRad);
-    float carVySet = chassis->ChassisPosSet.vy * cosf(AngleRealRad) - chassis->ChassisPosSet.vx * sinf(AngleRealRad);
+    // float carVxSet = chassis->ChassisPosSet.vx * cosf(AngleRealRad) + chassis->ChassisPosSet.vy * sinf(AngleRealRad);
+    // float carVySet = chassis->ChassisPosSet.vy * cosf(AngleRealRad) - chassis->ChassisPosSet.vx * sinf(AngleRealRad);
+    float carVxSet = chassis->ChassisPosSet.vx;
+    float carVySet = chassis->ChassisPosSet.vy;
 
     chassis->ChassisPosSet.vx = carVxSet;
     chassis->ChassisPosSet.vy = carVySet;

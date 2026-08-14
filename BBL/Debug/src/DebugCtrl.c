@@ -3,6 +3,7 @@
 DebugMsgTypedef DebugMsg = {0};          // 调试器消息
 DebugRxMsgPackTypedef DebugRxPack = {0}; // 接收数据包
 DebugTxMsgPackTypedef DebugTxPack = {0}; // 发送数据包
+RosComPackTypedef RosComPack = {0};     // ROS通信数据包
 Bpoint testPoint = {0};
 float testangle = 0;
 uint8_t testThrehold = 0;
@@ -530,3 +531,50 @@ void Debug_ProcessTxMsg(CHASSIS *chassis, DebugTxMsgPackTypedef *txPack)
 
     Debug_SendMsg(&DebugMsg, txPack);
 }
+
+void ROS2STM_Comtest(RosComPackTypedef *rosPack, uint8_t data[])
+{
+    rosPack->Prefix = data[0];
+    rosPack->Suffix = data[ROS_PACK_LEN-1];
+    if(rosPack->Prefix != 0xA5 || rosPack->Suffix != 0x5A)
+        return;
+    rosPack->enable = data[1];
+    rosPack->protect = data[2];
+    memcpy(&rosPack->velx, &data[3], sizeof(float));
+    memcpy(&rosPack->vely, &data[7], sizeof(float));
+    memcpy(&rosPack->velw, &data[11], sizeof(float));
+}
+
+void ROS_Ctrlchassis(CHASSIS *chassis, RosComPackTypedef *rosPack)
+{
+    float tmpVelx = 0, tmpVely = 0, tmpAngw = 0;
+
+    if (rosPack->enable && rosPack->protect)
+    {
+        chassis->Enable = true;
+        ChassisEnable(1); 
+        Sekiro.half_auto = 0;  
+        Sekiro.automatic = 0;
+    }
+    else if (!rosPack->enable && !rosPack->protect)
+    {
+        chassis->Enable = false;
+        ChassisEnable(0);
+    }
+
+    tmpVelx = (float)(rosPack->velx) * CHASSIS_MANUAL_MAX_VELOCITY / 128.f;
+    tmpVely = (float)(rosPack->vely) * CHASSIS_MANUAL_MAX_VELOCITY / 128.f;
+    tmpAngw = (float)(rosPack->velw) * CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY / 128.f;
+    chassis->ChassisPosSet.vx = tmpVelx; 
+    chassis->ChassisPosSet.vy = tmpVely;
+    chassis->ChassisPosSet.w = tmpAngw;
+    Chassis_carvelSet(chassis);
+
+    if (chassis->Enable && chassis->Status != CHASSIS_CLIMBOVER)
+    {
+        sendCarVel((s16)(chassis->ChassisPosSet.vx * 1000.f), (s16)(chassis->ChassisPosSet.vy * 1000.f),
+                    (s16)(chassis->ChassisPosSet.w * 100.f), (CHASSIS_RUNMODE)chassis->crossBrake);
+    }
+
+}
+

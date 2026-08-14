@@ -95,9 +95,22 @@ typedef struct _debugtxmsgpack
     char Space; // 保留空间
 } DebugTxMsgPackTypedef;
 
+typedef struct _roscompack
+{
+    uint8_t Prefix; // 前缀
+    uint8_t enable;
+    uint8_t protect;
+    float velx;
+    float vely;
+    float velw;
+    uint8_t Suffix; // 后缀
+} RosComPackTypedef;
+
 extern DebugMsgTypedef DebugMsg;          // 调试器消息
 extern DebugRxMsgPackTypedef DebugRxPack; // 接收数据包
 extern DebugTxMsgPackTypedef DebugTxPack; // 发送数据包
+extern RosComPackTypedef RosComPack;     // ROS通信数据包
+
 
 void Debug_Receive(DebugMsgTypedef *debugMsg, uint8_t data);
 bool Debug_SendMsg(DebugMsgTypedef *debugMsg,
@@ -105,5 +118,7 @@ bool Debug_SendMsg(DebugMsgTypedef *debugMsg,
 bool Debug_ProcessRxMsg(CHASSIS *chassis, DebugRxMsgPackTypedef *rxPack);
 void Debug_ProcessTxMsg(CHASSIS *chassis, DebugTxMsgPackTypedef *txPack);
 bool Debug_NormalizeRxMsg(DebugMsgTypedef *debugMsg, DebugRxMsgPackTypedef *rxPack);
+void ROS2STM_Comtest(RosComPackTypedef *rosPack, uint8_t data[]);
+void ROS_Ctrlchassis(CHASSIS *chassis, RosComPackTypedef *rosPack);
 
 #endif /* __DEBUGCTRL_H__ */

@@ -12,8 +12,9 @@ void TaskUart(void *argument)
 {
     for (;;)
     {
-        Debug_ProcessRxMsg(&Chassis, &DebugRxPack);
-        Debug_ProcessTxMsg(&Chassis, &DebugTxPack);
+//        Debug_ProcessRxMsg(&Chassis, &DebugRxPack);
+//        Debug_ProcessTxMsg(&Chassis, &DebugTxPack);
+        ROS_Ctrlchassis(&Chassis, &RosComPack);
         // LaserRelocation(&SensorUsart_Msg, &Sensor_TxPack, 1, (float)testPoint.x, (float)testPoint.y, testangle);
         osDelay(10);
     }
