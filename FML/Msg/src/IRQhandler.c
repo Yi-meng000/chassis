@@ -7,6 +7,44 @@ __RAM_D3_ ALIGN_32B uint8_t rx_temp6 = 0;
 __RAM_D2_ ALIGN_32B uint8_t rx_temp4 = 0;
 __RAM_D2_ ALIGN_32B uint8_t rx_temp9[ROS_PACK_LEN] = {0};
 uint8_t rx_ros[16] = {0};
+
+/*
+ * UART9 is a byte stream, not a packet transport.  A lost byte would make a
+ * fixed 16-byte receive permanently misaligned, so retain a possible
+ * header after a bad frame and only receive the bytes that are still missing.
+ */
+static void UART9_StartReceive(UART_HandleTypeDef *huart, uint16_t bytes_kept)
+{
+    if ((bytes_kept >= ROS_PACK_LEN) ||
+        (HAL_UART_Receive_IT(huart, &rx_temp9[bytes_kept], ROS_PACK_LEN - bytes_kept) != HAL_OK))
+    {
+        Error_Handler();
+    }
+}
+
+static uint16_t UART9_Resync(void)
+{
+    int16_t header_index;
+
+    /*
+     * Keep the earliest candidate rather than skipping a valid header that
+     * appears later in this window.  For example, a frame ending in
+     * 0x5A, 0xA5 keeps that last A5 and receives the remaining 15 bytes of the
+     * following frame.
+     */
+    for (header_index = 1; header_index < ROS_PACK_LEN; ++header_index)
+    {
+        if (rx_temp9[header_index] == 0xA5U)
+        {
+            uint16_t bytes_kept = ROS_PACK_LEN - (uint16_t)header_index;
+            memmove(rx_temp9, &rx_temp9[header_index], bytes_kept);
+            return bytes_kept;
+        }
+    }
+
+    return 0U;
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART2)
@@ -47,11 +85,16 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     }
     if (huart->Instance == UART9)
     {
-        if (HAL_UART_Receive_IT(huart, rx_temp9, ROS_PACK_LEN) != HAL_OK)
-            Error_Handler();
-//        RobotCom_QrcodeScan(&RobotRxmsg, rx_temp9);
-        ROS2STM_Comtest(&RosComPack, rx_temp9);        
-        
+        if ((rx_temp9[0] == 0xA5U) && (rx_temp9[ROS_PACK_LEN - 1U] == 0x5AU))
+        {
+//          RobotCom_QrcodeScan(&RobotRxmsg, rx_temp9);
+            ROS2STM_Comtest(&RosComPack, rx_temp9);
+            UART9_StartReceive(huart, 0U);
+        }
+        else
+        {
+            UART9_StartReceive(huart, UART9_Resync());
+        }
     }
 }
 
@@ -72,7 +115,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 		else if(huart->Instance == USART3)
 				HAL_UART_Receive_DMA(huart, &rx_temp3, 1);
         else if(huart->Instance == UART9)
-                HAL_UART_Receive_IT(huart, rx_temp9, ROS_PACK_LEN);
+                UART9_StartReceive(huart, 0U);
 }
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
