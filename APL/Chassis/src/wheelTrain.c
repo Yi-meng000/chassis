@@ -62,6 +62,72 @@ void Chassis_carvelSet(CHASSIS *chassis)
     // if (fabs(chassis->ChassisPosSet.w) > CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY)
     //     chassis->ChassisPosSet.w = GetSign(chassis->ChassisPosSet.w) * CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY;
 }
+
+/*
+ * Reconstruct the body-frame velocity from the four measured wheel speeds
+ * (RPM) and steering angles.  The wheel equation is:
+ *
+ *   wheel_speed = cos(theta) * vx + sin(theta) * vy + k * w
+ *
+ * where w is rad/s and k is the tangential lever arm projected onto the
+ * wheel direction.  A small diagonal damping term keeps the estimate usable
+ * when all steering wheels are parallel, where one velocity component is
+ * unobservable.
+ */
+void Chassis_UpdateMeasuredVelocity(CHASSIS *chassis)
+{
+    const float wheel_rpm_to_mps = (2.0f * PI * CHASSIS_ODOM_WHEEL_RADIUS_M) / 60.0f;
+    const float damping = 1.0e-4f;
+    float h00 = damping, h01 = 0.0f, h02 = 0.0f;
+    float h11 = damping, h12 = 0.0f, h22 = damping;
+    float g0 = 0.0f, g1 = 0.0f, g2 = 0.0f;
+    float c00, c01, c02, c11, c12, c22, determinant;
+    float vx, vy, w_rad;
+
+    for (uint8_t i = 0U; i < 4U; ++i)
+    {
+        const WHEEL *wheel = &chassis->wheel[i];
+        const float steer_rad = DEG2RAD(wheel->SteerMotorValueReal.angle);
+        const float direction_x = cosf(steer_rad);
+        const float direction_y = sinf(steer_rad);
+        const float yaw_gain = CHASSIS_ODOM_WHEEL2CENTER_M *
+                               (wheel->cosPhaseAngle * direction_x +
+                                wheel->sinPhaseAngle * direction_y);
+        const float wheel_speed = wheel->DriveMotorValueReal.speed * wheel_rpm_to_mps;
+
+        h00 += direction_x * direction_x;
+        h01 += direction_x * direction_y;
+        h02 += direction_x * yaw_gain;
+        h11 += direction_y * direction_y;
+        h12 += direction_y * yaw_gain;
+        h22 += yaw_gain * yaw_gain;
+
+        g0 += direction_x * wheel_speed;
+        g1 += direction_y * wheel_speed;
+        g2 += yaw_gain * wheel_speed;
+    }
+
+    c00 = h11 * h22 - h12 * h12;
+    c01 = h02 * h12 - h01 * h22;
+    c02 = h01 * h12 - h02 * h11;
+    c11 = h00 * h22 - h02 * h02;
+    c12 = h01 * h02 - h00 * h12;
+    c22 = h00 * h11 - h01 * h01;
+    determinant = h00 * c00 + h01 * c01 + h02 * c02;
+
+    if (fabsf(determinant) < 1.0e-9f)
+        return;
+
+    vx = (c00 * g0 + c01 * g1 + c02 * g2) / determinant;
+    vy = (c01 * g0 + c11 * g1 + c12 * g2) / determinant;
+    w_rad = (c02 * g0 + c12 * g1 + c22 * g2) / determinant;
+
+    chassis->ChassisPosReal.vx = vx;
+    chassis->ChassisPosReal.vy = vy;
+    chassis->ChassisPosReal.v = sqrtf(vx * vx + vy * vy);
+    chassis->ChassisPosReal.w = RAD2DEG(w_rad);
+}
+
 /**
  * @brief 车速到轮速
  *

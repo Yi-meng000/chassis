@@ -15,6 +15,7 @@ void TaskUart(void *argument)
 //        Debug_ProcessRxMsg(&Chassis, &DebugRxPack);
 //        Debug_ProcessTxMsg(&Chassis, &DebugTxPack);
         ROS_Ctrlchassis(&Chassis, &RosComPack);
+        STM2ROS_SendChassisVelocity(&Chassis);
         // LaserRelocation(&SensorUsart_Msg, &Sensor_TxPack, 1, (float)testPoint.x, (float)testPoint.y, testangle);
         osDelay(10);
     }
@@ -24,6 +25,7 @@ void TaskChassis(void *argument)
     for (;;)
     {
         chassis_SensordataHandle(&Chassis, &Sensor_RxPack, &SensorUsart_Msg);
+        Chassis_UpdateMeasuredVelocity(&Chassis);
         if (Chassis.Enable)
         {
             if (Chassis.Status != CHASSIS_CLIMBOVER)
@@ -61,6 +63,7 @@ void Testtask(void *argument)
 {
     for (;;)
     {
+        sendChassisAskMsg(MASTER_CHASSIS_ASK_DRIVE_SPEED);
         sendChassisAskMsg(MASTER_CHASSIS_ASK_STEER_ANGLE);
         Match_PosUpdate(&Sekiro, &CameraRxPack, &Chassis, 0);
 

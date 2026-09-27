@@ -4,6 +4,7 @@ DebugMsgTypedef DebugMsg = {0};          // 调试器消息
 DebugRxMsgPackTypedef DebugRxPack = {0}; // 接收数据包
 DebugTxMsgPackTypedef DebugTxPack = {0}; // 发送数据包
 RosComPackTypedef RosComPack = {0};     // ROS通信数据包
+static uint8_t uart9ChassisVelocityTx[16] = {0};
 Bpoint testPoint = {0};
 float testangle = 0;
 uint8_t testThrehold = 0;
@@ -543,6 +544,26 @@ void ROS2STM_Comtest(RosComPackTypedef *rosPack, uint8_t data[])
     memcpy(&rosPack->velx, &data[3], sizeof(float));
     memcpy(&rosPack->vely, &data[7], sizeof(float));
     memcpy(&rosPack->velw, &data[11], sizeof(float));
+}
+
+bool STM2ROS_SendChassisVelocity(const CHASSIS *chassis)
+{
+    /* Do not overwrite the nonblocking transmit buffer before UART9 is idle. */
+    if (huart9.gState != HAL_UART_STATE_READY)
+    {
+        return false;
+    }
+
+    uart9ChassisVelocityTx[0] = 0xA5;
+    uart9ChassisVelocityTx[1] = 0x51;
+    memcpy(&uart9ChassisVelocityTx[2], &chassis->ChassisPosReal.vx, sizeof(float));
+    memcpy(&uart9ChassisVelocityTx[6], &chassis->ChassisPosReal.vy, sizeof(float));
+    memcpy(&uart9ChassisVelocityTx[10], &chassis->ChassisPosReal.w, sizeof(float));
+    uart9ChassisVelocityTx[14] = 0x15;
+    uart9ChassisVelocityTx[15] = 0x5A;
+
+    return HAL_UART_Transmit_IT(&huart9, uart9ChassisVelocityTx,
+                                sizeof(uart9ChassisVelocityTx)) == HAL_OK;
 }
 
 void ROS_Ctrlchassis(CHASSIS *chassis, RosComPackTypedef *rosPack)

@@ -120,5 +120,6 @@ void Debug_ProcessTxMsg(CHASSIS *chassis, DebugTxMsgPackTypedef *txPack);
 bool Debug_NormalizeRxMsg(DebugMsgTypedef *debugMsg, DebugRxMsgPackTypedef *rxPack);
 void ROS2STM_Comtest(RosComPackTypedef *rosPack, uint8_t data[]);
 void ROS_Ctrlchassis(CHASSIS *chassis, RosComPackTypedef *rosPack);
+bool STM2ROS_SendChassisVelocity(const CHASSIS *chassis);
 
 #endif /* __DEBUGCTRL_H__ */

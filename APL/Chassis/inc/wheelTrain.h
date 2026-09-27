@@ -33,10 +33,19 @@
 #define CHASSIS_LOCK_MAX_ANGULAR_SPEED 200.f
 
 #define CHASSIS_CLIMB_YAWCORRECT_SPEED 40.f
+
+/*
+ * Wheel odometry must use the same geometric parameters as the lower board,
+ * where the drive-wheel RPM is measured and reported.
+ */
+#define CHASSIS_ODOM_WHEEL_RADIUS_M 0.04325f
+#define CHASSIS_ODOM_WHEEL2CENTER_M 0.325269119345f
+
 void Chassis_Init(CHASSIS *chassis);
 int wheelTurnMin(WHEEL *wheel, float targetAngle);
 void Chassis_carvelSet(CHASSIS *chassis);
 void CalSingWheelSpeed(WHEEL *wheel, float carVxset, float carVyset, float carVw);
+void Chassis_UpdateMeasuredVelocity(CHASSIS *chassis);
 // void sendCtrlMsg(CHASSIS *chassis);
 //  void crossLock(CHASSIS *chassis);
 #endif /* __WHEELTRAIN_H__ */

@@ -122,8 +122,8 @@ void Drive_RPM_Answer(CHASSIS *chassis)
         return;
     buffer_append_int16(Data, (int16_t)(*chassis->wheel[FL].DriveMotorValueReal.speed) * 5.f, &index);
     buffer_append_int16(Data, (int16_t)(*chassis->wheel[FR].DriveMotorValueReal.speed) * 5.f, &index);
-    buffer_append_int16(Data, (int16_t)(*chassis->wheel[BR].DriveMotorValueReal.speed) * 5.f, &index);
     buffer_append_int16(Data, (int16_t)(*chassis->wheel[BL].DriveMotorValueReal.speed) * 5.f, &index);
+    buffer_append_int16(Data, (int16_t)(*chassis->wheel[BR].DriveMotorValueReal.speed) * 5.f, &index);
     CAN1_Txqueue.FDCAN_DataSend[CAN1_Txqueue.Rear].DLC = 8;
     CAN1_Txqueue.FDCAN_DataSend[CAN1_Txqueue.Rear].ID = SLAVE_CHASSIS_ASK_DRIVE_SPEED;
     CAN1_Txqueue.FDCAN_DataSend[CAN1_Txqueue.Rear].IDE = FDCAN_EXTENDED_ID;
