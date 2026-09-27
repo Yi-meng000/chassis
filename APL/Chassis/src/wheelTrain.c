@@ -53,14 +53,14 @@ void Chassis_carvelSet(CHASSIS *chassis)
 
     chassis->ChassisPosSet.v = Modulo2d((vector2d){chassis->ChassisPosSet.vx, chassis->ChassisPosSet.vy});
 
-    if (chassis->ChassisPosSet.v > CHASSIS_MANUAL_MAX_VELOCITY)
-    {
-        chassis->ChassisPosSet.vx = chassis->ChassisPosSet.vx * CHASSIS_MANUAL_MAX_VELOCITY / chassis->ChassisPosSet.v;
-        chassis->ChassisPosSet.vy = chassis->ChassisPosSet.vy * CHASSIS_MANUAL_MAX_VELOCITY / chassis->ChassisPosSet.v;
-        chassis->ChassisPosSet.v = CHASSIS_MANUAL_MAX_VELOCITY;
-    }
-    if (fabs(chassis->ChassisPosSet.w) > CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY)
-        chassis->ChassisPosSet.w = GetSign(chassis->ChassisPosSet.w) * CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY;
+    // if (chassis->ChassisPosSet.v > CHASSIS_MANUAL_MAX_VELOCITY)
+    // {
+    //     chassis->ChassisPosSet.vx = chassis->ChassisPosSet.vx * CHASSIS_MANUAL_MAX_VELOCITY / chassis->ChassisPosSet.v;
+    //     chassis->ChassisPosSet.vy = chassis->ChassisPosSet.vy * CHASSIS_MANUAL_MAX_VELOCITY / chassis->ChassisPosSet.v;
+    //     chassis->ChassisPosSet.v = CHASSIS_MANUAL_MAX_VELOCITY;
+    // }
+    // if (fabs(chassis->ChassisPosSet.w) > CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY)
+    //     chassis->ChassisPosSet.w = GetSign(chassis->ChassisPosSet.w) * CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY;
 }
 /**
  * @brief 车速到轮速

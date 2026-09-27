@@ -80,14 +80,14 @@ void chassisSpeed2Wheel(CHASSIS *chassis)
 {
     chassis->ChassisPosSet.v = Modulo2d((vector2d){chassis->ChassisPosSet.vx,chassis->ChassisPosSet.vy});
 
-    if(chassis->ChassisPosSet.v > CHASSIS_MANUAL_MAX_VELOCITY)
-    {
-        chassis->ChassisPosSet.vx = chassis->ChassisPosSet.vx * CHASSIS_MANUAL_MAX_VELOCITY / chassis->ChassisPosSet.v;
-        chassis->ChassisPosSet.vy = chassis->ChassisPosSet.vy * CHASSIS_MANUAL_MAX_VELOCITY / chassis->ChassisPosSet.v;
-        chassis->ChassisPosSet.v = CHASSIS_MANUAL_MAX_VELOCITY;
-    }
-    if(fabs(chassis->ChassisPosSet.w) > CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY) 
-        chassis->ChassisPosSet.w = GetSign(chassis->ChassisPosSet.w) * CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY;
+    // if(chassis->ChassisPosSet.v > CHASSIS_MANUAL_MAX_VELOCITY)
+    // {
+    //     chassis->ChassisPosSet.vx = chassis->ChassisPosSet.vx * CHASSIS_MANUAL_MAX_VELOCITY / chassis->ChassisPosSet.v;
+    //     chassis->ChassisPosSet.vy = chassis->ChassisPosSet.vy * CHASSIS_MANUAL_MAX_VELOCITY / chassis->ChassisPosSet.v;
+    //     chassis->ChassisPosSet.v = CHASSIS_MANUAL_MAX_VELOCITY;
+    // }
+    // if(fabs(chassis->ChassisPosSet.w) > CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY) 
+    //     chassis->ChassisPosSet.w = GetSign(chassis->ChassisPosSet.w) * CHASSIS_MANUAL_MAX_ANGULAR_VELOCITY;
     float AngleRealRad = DEG2RAD(chassis->ChassisPosReal.angle);
     float carVxSet = chassis->ChassisPosSet.vx * cosf(AngleRealRad) + chassis->ChassisPosSet.vy * sinf(AngleRealRad);
     float carVySet = chassis->ChassisPosSet.vy * cosf(AngleRealRad) - chassis->ChassisPosSet.vx * sinf(AngleRealRad);
